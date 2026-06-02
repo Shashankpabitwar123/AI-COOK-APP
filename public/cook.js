@@ -38,6 +38,77 @@ const animMap = [
   { words: ["serve","garnish","plate","enjoy","top with","sprinkle"], emoji:"🍽️", label:"Plate & serve", cls:"anim-serve"},
 ];
 
+const demoRecipes = [
+  {
+    id: "demo-rice-egg",
+    title: "Golden Egg Fried Rice",
+    readyInMinutes: 25,
+    servings: 2,
+    vegetarian: true,
+    glutenFree: false,
+    extendedIngredients: [
+      { name: "rice", original: "2 cups cooked rice" },
+      { name: "egg", original: "2 eggs, beaten" },
+      { name: "soy sauce", original: "1 tablespoon soy sauce" },
+      { name: "spring onion", original: "2 spring onions, sliced" },
+      { name: "oil", original: "1 tablespoon neutral oil" }
+    ],
+    analyzedInstructions: [{ steps: [
+      { step: "Heat oil in a skillet over medium-high heat." },
+      { step: "Add beaten eggs and scramble until just set." },
+      { step: "Stir in cooked rice and soy sauce." },
+      { step: "Fold in spring onion, cook for one more minute, and serve hot." }
+    ] }]
+  },
+  {
+    id: "demo-chicken-tomato",
+    title: "Tomato Garlic Chicken Skillet",
+    readyInMinutes: 35,
+    servings: 4,
+    extendedIngredients: [
+      { name: "chicken", original: "1 pound chicken pieces" },
+      { name: "tomato", original: "2 tomatoes, chopped" },
+      { name: "onion", original: "1 onion, sliced" },
+      { name: "garlic", original: "3 garlic cloves, minced" },
+      { name: "olive oil", original: "2 tablespoons olive oil" }
+    ],
+    analyzedInstructions: [{ steps: [
+      { step: "Season chicken with salt and pepper." },
+      { step: "Sear chicken in olive oil until browned." },
+      { step: "Add onion, garlic, and tomato, then simmer until the chicken is cooked through." },
+      { step: "Serve with rice, bread, or salad." }
+    ] }]
+  },
+  {
+    id: "demo-pasta-tomato",
+    title: "Garlic Tomato Pasta",
+    readyInMinutes: 30,
+    servings: 3,
+    vegetarian: true,
+    extendedIngredients: [
+      { name: "pasta", original: "8 ounces pasta" },
+      { name: "tomato", original: "2 cups chopped tomatoes" },
+      { name: "garlic", original: "3 garlic cloves, minced" },
+      { name: "olive oil", original: "2 tablespoons olive oil" },
+      { name: "basil", original: "Fresh basil to finish" }
+    ],
+    analyzedInstructions: [{ steps: [
+      { step: "Boil pasta until al dente." },
+      { step: "Cook garlic in olive oil until fragrant." },
+      { step: "Add tomatoes and simmer into a light sauce." },
+      { step: "Toss pasta with sauce and finish with basil." }
+    ] }]
+  }
+];
+
+function useStaticRecipeDemo(){
+  return window.location.hostname.endsWith("github.io");
+}
+
+function findDemoRecipe(id){
+  return demoRecipes.find(recipe => String(recipe.id) === String(id)) || demoRecipes[0];
+}
+
 function cleanText(s){
   if(!s) return "";
   return String(s).replace(/\s+/g," ").replace(/\(.*?\)/g,"").trim();
@@ -445,8 +516,13 @@ async function init(){
   }
 
   try{
-    const res = await fetch(`/api/recipe/${encodeURIComponent(state.recipeId)}`);
-    const recipe = await res.json();
+    let recipe;
+    if(useStaticRecipeDemo()){
+      recipe = findDemoRecipe(state.recipeId);
+    } else {
+      const res = await fetch(`/api/recipe/${encodeURIComponent(state.recipeId)}`);
+      recipe = await res.json();
+    }
 
     qs("recipeName").textContent = recipe.title || "Recipe";
     setBadges(recipe);

@@ -60,6 +60,132 @@ function initRecipesPage() {
   let ingredients = [];
   let vibe = "chef"; // cozy | chef | fast
 
+  const demoRecipes = [
+    {
+      id: "demo-rice-egg",
+      title: "Golden Egg Fried Rice",
+      image: "./assets/hero.jpg",
+      readyInMinutes: 25,
+      servings: 2,
+      cuisines: ["Chinese"],
+      dishTypes: ["main course"],
+      sourceUrl: "https://www.spoonacular.com/",
+      summary: "A quick demo recipe for GitHub Pages using rice, egg, soy sauce, and spring onion.",
+      usedIngredientCount: 2,
+      missedIngredientCount: 3,
+      extendedIngredients: [
+        { name: "rice", original: "2 cups cooked rice" },
+        { name: "egg", original: "2 eggs, beaten" },
+        { name: "soy sauce", original: "1 tablespoon soy sauce" },
+        { name: "spring onion", original: "2 spring onions, sliced" },
+        { name: "oil", original: "1 tablespoon neutral oil" }
+      ],
+      analyzedInstructions: [{ steps: [
+        { step: "Heat oil in a skillet over medium-high heat." },
+        { step: "Add beaten eggs and scramble until just set." },
+        { step: "Stir in cooked rice and soy sauce." },
+        { step: "Fold in spring onion, cook for one more minute, and serve hot." }
+      ] }]
+    },
+    {
+      id: "demo-chicken-tomato",
+      title: "Tomato Garlic Chicken Skillet",
+      image: "./assets/hero.jpg",
+      readyInMinutes: 35,
+      servings: 4,
+      cuisines: ["Mediterranean"],
+      dishTypes: ["dinner"],
+      sourceUrl: "https://www.spoonacular.com/",
+      summary: "A simple demo skillet dinner with chicken, tomato, onion, and garlic.",
+      usedIngredientCount: 2,
+      missedIngredientCount: 3,
+      extendedIngredients: [
+        { name: "chicken", original: "1 pound chicken pieces" },
+        { name: "tomato", original: "2 tomatoes, chopped" },
+        { name: "onion", original: "1 onion, sliced" },
+        { name: "garlic", original: "3 garlic cloves, minced" },
+        { name: "olive oil", original: "2 tablespoons olive oil" }
+      ],
+      analyzedInstructions: [{ steps: [
+        { step: "Season chicken with salt and pepper." },
+        { step: "Sear chicken in olive oil until browned." },
+        { step: "Add onion, garlic, and tomato, then simmer until the chicken is cooked through." },
+        { step: "Serve with rice, bread, or salad." }
+      ] }]
+    },
+    {
+      id: "demo-pasta-tomato",
+      title: "Garlic Tomato Pasta",
+      image: "./assets/hero.jpg",
+      readyInMinutes: 30,
+      servings: 3,
+      cuisines: ["Italian"],
+      dishTypes: ["main course"],
+      sourceUrl: "https://www.spoonacular.com/",
+      summary: "A GitHub Pages demo pasta recipe with tomato, garlic, olive oil, and herbs.",
+      usedIngredientCount: 2,
+      missedIngredientCount: 3,
+      extendedIngredients: [
+        { name: "pasta", original: "8 ounces pasta" },
+        { name: "tomato", original: "2 cups chopped tomatoes" },
+        { name: "garlic", original: "3 garlic cloves, minced" },
+        { name: "olive oil", original: "2 tablespoons olive oil" },
+        { name: "basil", original: "Fresh basil to finish" }
+      ],
+      analyzedInstructions: [{ steps: [
+        { step: "Boil pasta until al dente." },
+        { step: "Cook garlic in olive oil until fragrant." },
+        { step: "Add tomatoes and simmer into a light sauce." },
+        { step: "Toss pasta with sauce and finish with basil." }
+      ] }]
+    }
+  ];
+
+  function useStaticRecipeDemo(){
+    return window.location.hostname.endsWith("github.io");
+  }
+
+  function searchDemoRecipes(){
+    const selected = ingredients.map(s => s.toLowerCase());
+    const cuisine = (cuisineEl.value || "").toLowerCase();
+    const mealType = (mealTypeEl.value || "").toLowerCase();
+    const maxTime = parseInt((maxReadyTimeEl.value || "").trim(), 10);
+
+    let results = demoRecipes.filter(recipe => {
+      const recipeWords = [
+        recipe.title,
+        ...(recipe.cuisines || []),
+        ...(recipe.dishTypes || []),
+        ...(recipe.extendedIngredients || []).map(ing => ing.name || "")
+      ].join(" ").toLowerCase();
+
+      const ingredientMatch = selected.length === 0 || selected.some(ing => recipeWords.includes(ing));
+      const cuisineMatch = !cuisine || (recipe.cuisines || []).some(c => c.toLowerCase() === cuisine);
+      const mealMatch = !mealType || (recipe.dishTypes || []).some(t => t.toLowerCase().includes(mealType));
+      const timeMatch = !Number.isFinite(maxTime) || !recipe.readyInMinutes || recipe.readyInMinutes <= maxTime;
+
+      return ingredientMatch && cuisineMatch && mealMatch && timeMatch;
+    });
+
+    if (results.length === 0) results = demoRecipes;
+
+    return {
+      totalResults: results.length,
+      results: results.map(recipe => ({
+        ...recipe,
+        usedIngredientCount: selected.filter(ing => {
+          const names = (recipe.extendedIngredients || []).map(item => (item.name || "").toLowerCase());
+          return names.some(name => name.includes(ing) || ing.includes(name));
+        }).length,
+        missedIngredientCount: Math.max(0, (recipe.extendedIngredients || []).length - selected.length)
+      }))
+    };
+  }
+
+  function findDemoRecipe(id){
+    return demoRecipes.find(recipe => String(recipe.id) === String(id)) || demoRecipes[0];
+  }
+
   // --- Vibe buttons ---
   document.querySelectorAll(".recipes-vibeCard").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -222,10 +348,15 @@ function initRecipesPage() {
     if (maxTime && /^\d{1,3}$/.test(maxTime)) params.set("maxReadyTime", maxTime);
 
     try {
-      const r = await fetch(`/api/search?${params.toString()}`);
-      const data = await r.json();
+      let data;
+      if (useStaticRecipeDemo()) {
+        data = searchDemoRecipes();
+      } else {
+        const r = await fetch(`/api/search?${params.toString()}`);
+        data = await r.json();
 
-      if (!r.ok) throw new Error(data?.error || "Search failed");
+        if (!r.ok) throw new Error(data?.error || "Search failed");
+      }
 
       const total = data?.totalResults ?? data?.results?.length ?? 0;
       if (ingredients.length > 0) {
@@ -243,7 +374,9 @@ function initRecipesPage() {
         emptyStateEl.classList.add("hidden");
       }
 
-      toast("Recipes ready. Click any card to open full instructions.");
+      toast(useStaticRecipeDemo()
+        ? "Demo recipes ready. Deploy with a Node server for live Spoonacular search."
+        : "Recipes ready. Click any card to open full instructions.");
     } catch (e) {
       statusEl.textContent = `Error: ${e.message}`;
       statusEl.style.color = "var(--danger)";
@@ -296,9 +429,14 @@ function initRecipesPage() {
     modalContent.innerHTML = makeModalLoading();
 
     try {
-      const r = await fetch(`/api/recipe/${encodeURIComponent(id)}`);
-      const data = await r.json();
-      if (!r.ok) throw new Error(data?.error || "Failed to load recipe");
+      let data;
+      if (useStaticRecipeDemo()) {
+        data = findDemoRecipe(id);
+      } else {
+        const r = await fetch(`/api/recipe/${encodeURIComponent(id)}`);
+        data = await r.json();
+        if (!r.ok) throw new Error(data?.error || "Failed to load recipe");
+      }
 
       modalContent.innerHTML = makeModalHtml(data);
     } catch (e) {
