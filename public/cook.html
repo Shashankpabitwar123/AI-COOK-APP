@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>COOK IA — AI Cooking Mode</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="cook-mode">
+  <header class="cook-header">
+    <a class="cook-back" href="./recipes.html">← Back</a>
+
+    <div class="cook-title">
+      <span class="cook-title-main">AI Cooking</span>
+      <span class="cook-title-sub">Mode</span>
+    </div>
+
+    <div class="cook-header-right">
+      <button id="captionsToggle" class="cook-icon-btn active" title="Captions" aria-label="Captions">CC</button>
+      <button id="fullscreenToggle" class="cook-icon-btn" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+      <button id="voiceToggle" class="cook-icon-btn" title="Toggle voice" aria-label="Toggle voice">🔊</button>
+      <select id="voiceSelect" class="cook-speed" aria-label="Voice"></select>
+      <select id="speedSelect" class="cook-speed" aria-label="Speech speed">
+        <option value="0.9">0.9x</option>
+        <option value="1.0" selected>1.0x</option>
+        <option value="1.1">1.1x</option>
+      </select>
+    </div>
+  </header>
+
+  <main class="cook-shell">
+    <section class="cook-stage">
+      <div class="cook-stage-card">
+        <div id="animArea" class="cook-anim anim-default" aria-hidden="true">
+          <div class="cook-stage-top">
+            <div class="cook-timer" title="Step timer">
+              <svg class="cook-timer-svg" viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="cook-timer-bg" cx="60" cy="60" r="50"></circle>
+                <circle id="timerRing" class="cook-timer-ring" cx="60" cy="60" r="50"></circle>
+              </svg>
+              <div class="cook-timer-text">
+                <div id="timerSecs" class="cook-timer-secs">--</div>
+                <div class="cook-timer-label">sec</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cook-anim-emoji" id="animEmoji">🍳</div>
+          <div class="cook-anim-label" id="animLabel">Getting things ready…</div>
+
+          <div id="captionBar" class="cook-captions" aria-live="polite"></div>
+        </div>
+
+        <div class="cook-recipe-meta">
+          <div class="cook-recipe-name" id="recipeName">Loading…</div>
+          <div class="cook-recipe-badges" id="recipeBadges"></div>
+        </div>
+      </div>
+
+      <div class="cook-timeline-wrap">
+        <div class="cook-timeline-title">Steps</div>
+        <div id="timeline" class="cook-timeline" role="list"></div>
+      </div>
+    </section>
+
+    <section class="cook-panel">
+      <div class="cook-stepbox">
+        <div class="cook-step-top">
+          <div class="cook-step-count" id="stepCount">Step 1</div>
+          <div class="cook-step-actions">
+            <button id="prevStep" class="cook-btn ghost">Prev</button>
+            <button id="nextStep" class="cook-btn ghost">Next</button>
+          </div>
+        </div>
+
+        <div class="cook-step-text" id="stepText">Loading steps…</div>
+
+        <div class="cook-ingredients">
+          <div class="cook-ingredients-title">Key ingredients</div>
+          <div class="cook-ingredients-chips" id="ingredientChips"></div>
+          <div class="cook-ingredients-hint" id="ingredientHint">Ingredients mentioned in this step will highlight.</div>
+        </div>
+
+        <div class="cook-controls">
+          <button id="playPause" class="cook-btn primary">Play</button>
+          <button id="replayStep" class="cook-btn">Replay step</button>
+        </div>
+
+        <div class="cook-progress">
+          <div class="cook-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            <div id="progressFill" class="cook-progress-fill"></div>
+          </div>
+          <div class="cook-progress-hint" id="progressHint">0 / 0</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./cook.js"></script>
+</body>
+</html>

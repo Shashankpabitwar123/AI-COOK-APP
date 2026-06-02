@@ -1,0 +1,14 @@
+{
+    "name": "ai-cook",
+    "version": "1.0.0",
+    "description": "AI Cook - Pantry to Plate (Spoonacular-powered)",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "dotenv": "^17.2.3",
+        "express": "^4.19.2"
+    }
+}

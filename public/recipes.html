@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>COOK IA — Discover Recipes</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body class="recipes-body">
+  <!-- Top Nav -->
+  <header class="nav">
+    <div class="nav-left">
+      <div class="nav-mark">
+        <span class="nav-line"></span>
+        <span class="nav-icon">👨‍🍳</span>
+        <span class="nav-line"></span>
+      </div>
+      <div class="nav-subtitle">AI CULINARY</div>
+    </div>
+
+    <div class="nav-right">
+      <a class="nav-btn outline" href="./index.html">← BACK HOME</a>
+    </div>
+  </header>
+
+  <main class="container recipes-wrap">
+    <!-- Page title -->
+    <section class="recipes-title">
+      <div class="recipes-ornament" aria-hidden="true">
+        <span class="orn-line"></span>
+        <span class="orn-icon">✨</span>
+        <span class="orn-line"></span>
+      </div>
+
+      <h1 class="recipes-h1">DISCOVER <span class="recipes-accent">RECIPES</span></h1>
+      <p class="recipes-sub">Enter ingredients, choose a vibe, and let COOK IA find recipes using Spoonacular.</p>
+    </section>
+
+    <!-- Controls panel -->
+    <section class="recipes-panel">
+      <!-- Ingredients -->
+      <div class="recipes-block">
+        <div class="recipes-label">INGREDIENTS</div>
+
+        <div class="recipes-inputRow">
+          <input id="ingredientsInput" class="recipes-input" placeholder="e.g., garlic, chicken, tomatoes" autocomplete="off" />
+          <button id="addIngredientBtn" class="recipes-plus" type="button" aria-label="Add ingredient">+</button>
+        </div>
+
+        <div id="chips" class="chips recipes-chips" aria-label="Selected ingredients"></div>
+      </div>
+
+      <!-- Only selected toggle -->
+      <div class="recipes-toggle">
+        <div>
+          <div class="recipes-toggleTitle">Only use selected ingredients</div>
+          <div class="recipes-toggleSub">Recipes will only contain the ingredients you've added</div>
+        </div>
+
+        <label class="switch" aria-label="Only use selected ingredients">
+          <input id="onlySelected" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Vibe -->
+      <div class="recipes-block">
+        <div class="recipes-label">VIBE</div>
+
+        <div class="recipes-vibeGrid" role="tablist" aria-label="Recipe vibe">
+          <button class="recipes-vibeCard active" type="button" data-vibe="chef" role="tab" aria-selected="true">
+            <div class="recipes-vibeIcon">👨‍🍳</div>
+            <div class="recipes-vibeText">Chef</div>
+          </button>
+
+          <button class="recipes-vibeCard" type="button" data-vibe="cozy" role="tab" aria-selected="false">
+            <div class="recipes-vibeIcon">✨</div>
+            <div class="recipes-vibeText">Cozy</div>
+          </button>
+
+          <button class="recipes-vibeCard" type="button" data-vibe="fast" role="tab" aria-selected="false">
+            <div class="recipes-vibeIcon">🕒</div>
+            <div class="recipes-vibeText">Fast</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="recipes-filters">
+        <div class="recipes-field">
+          <div class="recipes-fieldLabel">MEAL TYPE</div>
+          <select id="mealType" class="recipes-select">
+            <option value="">Any</option>
+            <option value="breakfast">Breakfast</option>
+            <option value="lunch">Lunch</option>
+            <option value="dinner">Dinner</option>
+            <option value="snack">Snack</option>
+            <option value="dessert">Dessert</option>
+          </select>
+        </div>
+
+        <div class="recipes-field">
+          <div class="recipes-fieldLabel">CUISINE</div>
+          <select id="cuisine" class="recipes-select">
+            <option value="">Any</option>
+            <option value="indian">Indian</option>
+            <option value="italian">Italian</option>
+            <option value="mexican">Mexican</option>
+            <option value="chinese">Chinese</option>
+            <option value="japanese">Japanese</option>
+            <option value="thai">Thai</option>
+            <option value="mediterranean">Mediterranean</option>
+            <option value="american">American</option>
+            <option value="french">French</option>
+            <option value="greek">Greek</option>
+            <option value="korean">Korean</option>
+          </select>
+        </div>
+
+        <div class="recipes-field">
+          <div class="recipes-fieldLabel">DIET</div>
+          <select id="diet" class="recipes-select">
+            <option value="">None</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="vegan">Vegan</option>
+            <option value="gluten free">Gluten Free</option>
+            <option value="ketogenic">Keto</option>
+            <option value="pescetarian">Pescetarian</option>
+          </select>
+        </div>
+
+        <div class="recipes-field">
+          <div class="recipes-fieldLabel">MAX TIME (MIN)</div>
+          <input id="maxReadyTime" class="recipes-select" placeholder="e.g., 30" inputmode="numeric" />
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="recipes-actions">
+        <button id="surpriseBtn" class="recipes-btn ghost" type="button">
+          <span class="recipes-btnIcon">✨</span>
+          Surprise me
+        </button>
+
+        <button id="searchBtn" class="recipes-btn primary" type="button">
+          <span class="recipes-btnIcon">🍴</span>
+          Find recipes
+        </button>
+
+        <button id="clearBtn" class="recipes-btn square" type="button" aria-label="Clear">
+        </button>
+      </div>
+
+      <div id="resultsMeta" class="recipes-meta">Add ingredients to start discovering recipes</div>
+      <div id="status" class="status recipes-status" aria-live="polite"></div>
+    </section>
+
+    <!-- Results panel -->
+    <section class="recipes-panel recipes-results">
+      <div id="skeletons" class="skeletons hidden" aria-hidden="true">
+        <div class="sk"></div><div class="sk"></div><div class="sk"></div>
+        <div class="sk"></div><div class="sk"></div><div class="sk"></div>
+      </div>
+
+      <div id="emptyState" class="recipes-empty">
+        <div class="recipes-emptyIcon">🍴</div>
+        <div class="recipes-emptyTitle">No recipes yet</div>
+        <div class="recipes-emptySub">Add ingredients and hit <span class="recipes-accentInline">Find recipes</span></div>
+      </div>
+
+      <div id="cards" class="cards recipes-cards"></div>
+    </section>
+  </main>
+
+  <!-- Modal -->
+  <div id="modalOverlay" class="modal-overlay hidden" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Recipe details">
+      <button id="modalClose" class="modal-close" type="button" aria-label="Close">✕</button>
+      <div id="modalContent" class="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
