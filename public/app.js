@@ -59,6 +59,7 @@ function initRecipesPage() {
 
   let ingredients = [];
   let vibe = "chef"; // cozy | chef | fast
+  const PUBLIC_SPOONACULAR_API_KEY = "4d0fa0dd5c0545479a92c4462185e561";
 
   const demoRecipes = [
     {
@@ -143,6 +144,46 @@ function initRecipesPage() {
 
   function useStaticRecipeDemo(){
     return window.location.hostname.endsWith("github.io");
+  }
+
+  function spoonacularUrl(path, params = {}){
+    const url = new URL(`https://api.spoonacular.com${path}`);
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && String(value).trim() !== "") {
+        url.searchParams.set(key, String(value));
+      }
+    }
+    url.searchParams.set("apiKey", PUBLIC_SPOONACULAR_API_KEY);
+    return url.toString();
+  }
+
+  async function fetchSearchFromSpoonacular(){
+    const url = spoonacularUrl("/recipes/complexSearch", {
+      includeIngredients: ingredients.join(","),
+      type: mealTypeEl.value || undefined,
+      cuisine: cuisineEl.value || undefined,
+      diet: dietEl.value || undefined,
+      maxReadyTime: (maxReadyTimeEl.value || "").trim() || undefined,
+      addRecipeInformation: true,
+      fillIngredients: true,
+      instructionsRequired: true,
+      sort: "max-used-ingredients",
+      number: 12
+    });
+    const response = await fetch(url);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data?.message || data?.error || "Spoonacular search failed");
+    return data;
+  }
+
+  async function fetchRecipeFromSpoonacular(id){
+    const url = spoonacularUrl(`/recipes/${encodeURIComponent(id)}/information`, {
+      includeNutrition: false
+    });
+    const response = await fetch(url);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data?.message || data?.error || "Failed to load recipe");
+    return data;
   }
 
   function searchDemoRecipes(){
@@ -350,7 +391,7 @@ function initRecipesPage() {
     try {
       let data;
       if (useStaticRecipeDemo()) {
-        data = searchDemoRecipes();
+        data = await fetchSearchFromSpoonacular();
       } else {
         const r = await fetch(`/api/search?${params.toString()}`);
         data = await r.json();
@@ -374,9 +415,7 @@ function initRecipesPage() {
         emptyStateEl.classList.add("hidden");
       }
 
-      toast(useStaticRecipeDemo()
-        ? "Demo recipes ready. Deploy with a Node server for live Spoonacular search."
-        : "Recipes ready. Click any card to open full instructions.");
+      toast("Recipes ready. Click any card to open full instructions.");
     } catch (e) {
       statusEl.textContent = `Error: ${e.message}`;
       statusEl.style.color = "var(--danger)";
@@ -431,7 +470,7 @@ function initRecipesPage() {
     try {
       let data;
       if (useStaticRecipeDemo()) {
-        data = findDemoRecipe(id);
+        data = await fetchRecipeFromSpoonacular(id);
       } else {
         const r = await fetch(`/api/recipe/${encodeURIComponent(id)}`);
         data = await r.json();

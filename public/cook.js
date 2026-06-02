@@ -38,6 +38,8 @@ const animMap = [
   { words: ["serve","garnish","plate","enjoy","top with","sprinkle"], emoji:"🍽️", label:"Plate & serve", cls:"anim-serve"},
 ];
 
+const PUBLIC_SPOONACULAR_API_KEY = "4d0fa0dd5c0545479a92c4462185e561";
+
 const demoRecipes = [
   {
     id: "demo-rice-egg",
@@ -103,6 +105,27 @@ const demoRecipes = [
 
 function useStaticRecipeDemo(){
   return window.location.hostname.endsWith("github.io");
+}
+
+function spoonacularUrl(path, params = {}){
+  const url = new URL(`https://api.spoonacular.com${path}`);
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      url.searchParams.set(key, String(value));
+    }
+  }
+  url.searchParams.set("apiKey", PUBLIC_SPOONACULAR_API_KEY);
+  return url.toString();
+}
+
+async function fetchRecipeFromSpoonacular(id){
+  const url = spoonacularUrl(`/recipes/${encodeURIComponent(id)}/information`, {
+    includeNutrition: false
+  });
+  const response = await fetch(url);
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.message || data?.error || "Failed to load recipe");
+  return data;
 }
 
 function findDemoRecipe(id){
@@ -518,7 +541,7 @@ async function init(){
   try{
     let recipe;
     if(useStaticRecipeDemo()){
-      recipe = findDemoRecipe(state.recipeId);
+      recipe = await fetchRecipeFromSpoonacular(state.recipeId);
     } else {
       const res = await fetch(`/api/recipe/${encodeURIComponent(state.recipeId)}`);
       recipe = await res.json();
